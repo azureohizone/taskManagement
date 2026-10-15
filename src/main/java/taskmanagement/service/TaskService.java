@@ -11,6 +11,8 @@ import taskmanagement.repository.TaskRepository;
 import taskmanagement.dto.TaskRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import taskmanagement.dto.TaskResponse;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -79,6 +81,29 @@ public class TaskService {
 
     return taskRepository.findByStatusIgnoreCase(status, pageable);
 }
+
+public TaskResponse getTaskResponseById(Long id) {
+    Task task = getTaskById(id);
+    return TaskResponse.from(task);
+}
+
+
+public List<TaskResponse> getTaskResponses(String status) {
+    return getTasksByStatus(status)
+            .stream()
+            .map(TaskResponse::from)
+            .collect(Collectors.toList());
+}
+
+
+public Page<TaskResponse> getTaskResponsesPaginated(
+        String status, Pageable pageable) {
+
+    return getTasksPaginated(status, pageable)
+            .map(TaskResponse::from);
+}
+
+
 
 
 }

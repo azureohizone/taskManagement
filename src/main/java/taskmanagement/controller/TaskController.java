@@ -20,6 +20,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.data.domain.Sort;
+import taskmanagement.dto.TaskResponse;
 
 import taskmanagement.model.Task;
 import taskmanagement.service.TaskService;
@@ -35,19 +36,19 @@ public class TaskController {
     }
 
     // 1. Get all tasks
-    @GetMapping
-    public List<Task> getAllTasks(
-            @RequestParam(required = false) String status) {
 
-        return taskService.getTasksByStatus(status);
+    @GetMapping
+    public List<TaskResponse> getAllTasks(
+            @RequestParam(required = false) String status) {
+        return taskService.getTaskResponses(status);
     }
 
     @GetMapping("/page")
-    public Page<Task> getTasksPaginated(
+    public Page<TaskResponse> getTasksPaginated(
             @RequestParam(required = false) String status,
             @PageableDefault(size = 5, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
 
-        return taskService.getTasksPaginated(status, pageable);
+        return taskService.getTaskResponsesPaginated(status, pageable);
     }
 
     // 2. Create a task
@@ -65,8 +66,8 @@ public class TaskController {
 
     // 3. Get one task by ID
     @GetMapping("/{id}")
-    public Task getTaskById(@PathVariable Long id) {
-        return taskService.getTaskById(id);
+    public TaskResponse getTaskById(@PathVariable Long id) {
+        return taskService.getTaskResponseById(id);
     }
 
     // 4. Update a task
