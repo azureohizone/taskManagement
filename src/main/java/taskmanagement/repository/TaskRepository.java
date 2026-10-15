@@ -13,5 +13,7 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     List<Task> findByStatusIgnoreCase(String status);
 
+    List<Task> findByUser_Id(Long userId);
+
     Page<Task> findByStatusIgnoreCase(String status, Pageable pageable);
 }

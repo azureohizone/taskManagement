@@ -54,10 +54,10 @@ public class TaskController {
     // 2. Create a task
 
     @PostMapping
-    public ResponseEntity<Task> createTask(
+    public ResponseEntity<TaskResponse> createTask(
             @Valid @RequestBody TaskRequest request) {
 
-        Task createdTask = taskService.createTask(request);
+        TaskResponse createdTask = taskService.createTask(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)

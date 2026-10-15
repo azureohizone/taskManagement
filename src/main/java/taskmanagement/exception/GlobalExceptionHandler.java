@@ -9,38 +9,47 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 
-
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(TaskNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleTaskNotFound(
-            TaskNotFoundException ex) {
+        @ExceptionHandler(TaskNotFoundException.class)
+        public ResponseEntity<Map<String, String>> handleTaskNotFound(
+                        TaskNotFoundException ex) {
 
-        Map<String, String> error = Map.of(
-                "message", ex.getMessage()
-        );
+                Map<String, String> error = Map.of(
+                                "message", ex.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(error);
-    }
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(error);
+        }
 
-@ExceptionHandler(MethodArgumentNotValidException.class)
-public ResponseEntity<Map<String, Object>> handleValidationErrors(
-        MethodArgumentNotValidException ex) {
+        @ExceptionHandler(MethodArgumentNotValidException.class)
+        public ResponseEntity<Map<String, Object>> handleValidationErrors(
+                        MethodArgumentNotValidException ex) {
 
-    Map<String, String> errors = new HashMap<>();
+                Map<String, String> errors = new HashMap<>();
 
-    ex.getBindingResult().getFieldErrors().forEach(error ->
-        errors.put(error.getField(), error.getDefaultMessage())
-    );
+                ex.getBindingResult().getFieldErrors()
+                                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-    Map<String, Object> response = new HashMap<>();
-    response.put("message", "Validation failed");
-    response.put("errors", errors);
+                Map<String, Object> response = new HashMap<>();
+                response.put("message", "Validation failed");
+                response.put("errors", errors);
 
-    return ResponseEntity.badRequest().body(response);
-}
+                return ResponseEntity.badRequest().body(response);
+        }
+
+        @ExceptionHandler(UserNotFoundException.class)
+        public ResponseEntity<Map<String, String>> handleUserNotFound(
+                        UserNotFoundException ex) {
+
+                Map<String, String> error = Map.of(
+                                "message", ex.getMessage());
+
+                return ResponseEntity
+                                .status(HttpStatus.NOT_FOUND)
+                                .body(error);
+        }
 
 }

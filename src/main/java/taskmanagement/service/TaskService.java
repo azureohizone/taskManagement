@@ -13,14 +13,20 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import taskmanagement.dto.TaskResponse;
 import java.util.stream.Collectors;
+import taskmanagement.repository.UserRepository;
+import taskmanagement.exception.UserNotFoundException;
+import taskmanagement.model.User;
 
 @Service
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
 
-    public TaskService(TaskRepository taskRepository) {
+    public TaskService(TaskRepository taskRepository,
+            UserRepository userRepository) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
     }
 
     // 1. Get all tasks
@@ -56,13 +62,19 @@ public class TaskService {
         taskRepository.delete(existingTask);
     }
 
-    public Task createTask(TaskRequest request) {
-        Task task = new Task();
+    public TaskResponse createTask(TaskRequest request) {
 
+        User user = userRepository.findById(request.getUserId())
+                .orElseThrow(() -> new UserNotFoundException(request.getUserId()));
+
+        Task task = new Task();
         task.setTitle(request.getTitle());
         task.setStatus(request.getStatus());
+        task.setUser(user);
 
-        return taskRepository.save(task);
+        Task savedTask = taskRepository.save(task);
+
+        return TaskResponse.from(savedTask);
     }
 
     public List<Task> getTasksByStatus(String status) {
@@ -72,38 +84,44 @@ public class TaskService {
 
         return taskRepository.findByStatusIgnoreCase(status);
     }
-    
 
     public Page<Task> getTasksPaginated(String status, Pageable pageable) {
-    if (status == null || status.isBlank()) {
-        return taskRepository.findAll(pageable);
+        if (status == null || status.isBlank()) {
+            return taskRepository.findAll(pageable);
+        }
+
+        return taskRepository.findByStatusIgnoreCase(status, pageable);
     }
 
-    return taskRepository.findByStatusIgnoreCase(status, pageable);
-}
+    public TaskResponse getTaskResponseById(Long id) {
+        Task task = getTaskById(id);
+        return TaskResponse.from(task);
+    }
 
-public TaskResponse getTaskResponseById(Long id) {
-    Task task = getTaskById(id);
-    return TaskResponse.from(task);
-}
+    public List<TaskResponse> getTaskResponses(String status) {
+        return getTasksByStatus(status)
+                .stream()
+                .map(TaskResponse::from)
+                .collect(Collectors.toList());
+    }
 
+    public Page<TaskResponse> getTaskResponsesPaginated(
+            String status, Pageable pageable) {
 
-public List<TaskResponse> getTaskResponses(String status) {
-    return getTasksByStatus(status)
-            .stream()
-            .map(TaskResponse::from)
-            .collect(Collectors.toList());
-}
+        return getTasksPaginated(status, pageable)
+                .map(TaskResponse::from);
+    }
 
+    public List<TaskResponse> getTasksByUserId(Long userId) {
 
-public Page<TaskResponse> getTaskResponsesPaginated(
-        String status, Pageable pageable) {
+        if (!userRepository.existsById(userId)) {
+            throw new UserNotFoundException(userId);
+        }
 
-    return getTasksPaginated(status, pageable)
-            .map(TaskResponse::from);
-}
-
-
-
+        return taskRepository.findByUser_Id(userId)
+                .stream()
+                .map(TaskResponse::from)
+                .toList();
+    }
 
 }

@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 import taskmanagement.dto.UserRequest;
 import taskmanagement.dto.UserResponse;
 import taskmanagement.service.UserService;
+import java.util.List;
+import taskmanagement.dto.TaskResponse;
 
 @RestController
 @RequestMapping("/api/users")
@@ -31,4 +33,15 @@ public class UserController {
                 .status(HttpStatus.CREATED)
                 .body(response);
     }
+
+    @GetMapping("/{id}/tasks")
+    public List<TaskResponse> getUserTasks(@PathVariable Long id) {
+        return userService.getTasksByUserId(id);
+    }
+
+    @GetMapping
+    public List<UserResponse> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
 }
